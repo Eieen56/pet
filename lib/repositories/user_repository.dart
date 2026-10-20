@@ -1,0 +1,124 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:petreminder_user/core/errors/auth_failure.dart';
+import 'package:petreminder_user/models/app_user.dart';
+
+class UserRepository {
+  UserRepository(this._firestore);
+
+  final FirebaseFirestore _firestore;
+
+  Stream<AppUser?> watchUser(String userId) {
+    return _users.doc(userId).snapshots().map((snapshot) {
+      final data = snapshot.data();
+      return data == null ? null : AppUser.fromFirestore(data);
+    });
+  }
+
+  Future<void> createUserDocument({
+    required User user,
+    required String name,
+  }) async {
+    try {
+      await _users.doc(user.uid).set({
+        'uid': user.uid,
+        'name': name.trim(),
+        'email': user.email ?? '',
+        'photoUrl': user.photoURL,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastActivity': FieldValue.serverTimestamp(),
+        'accountStatus': AppUser.activeStatus,
+      });
+    } on FirebaseException catch (exception) {
+      throw _firestoreFailure(exception);
+    }
+  }
+
+  Future<void> ensureGoogleUserDocument(User user) async {
+    final reference = _users.doc(user.uid);
+
+    try {
+      final snapshot = await reference.get();
+      if (snapshot.exists) {
+        if (snapshot.data()?['accountStatus'] == AppUser.disabledStatus) {
+          throw const AuthFailure(
+            'Esta cuenta se encuentra deshabilitada.',
+            code: 'user-disabled',
+          );
+        }
+        await reference.update({'lastActivity': FieldValue.serverTimestamp()});
+        return;
+      }
+
+      await reference.set({
+        'uid': user.uid,
+        'name': user.displayName?.trim() ?? '',
+        'email': user.email ?? '',
+        'photoUrl': user.photoURL,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastActivity': FieldValue.serverTimestamp(),
+        'accountStatus': AppUser.activeStatus,
+      });
+    } on AuthFailure {
+      rethrow;
+    } on FirebaseException catch (exception) {
+      throw _firestoreFailure(exception);
+    }
+  }
+
+  Future<void> updateLastActivity(User user) async {
+    try {
+      await _users.doc(user.uid).update({
+        'lastActivity': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (exception) {
+      throw _firestoreFailure(exception);
+    }
+  }
+
+  Future<void> ensureAccountIsActive(User user) async {
+    try {
+      final snapshot = await _users.doc(user.uid).get();
+      final status = snapshot.data()?['accountStatus'] as String?;
+      if (status == AppUser.disabledStatus) {
+        throw const AuthFailure(
+          'Esta cuenta se encuentra deshabilitada.',
+          code: 'user-disabled',
+        );
+      }
+    } on AuthFailure {
+      rethrow;
+    } on FirebaseException catch (exception) {
+      throw _firestoreFailure(exception);
+    }
+  }
+
+  Future<void> updateName(String userId, String name) async {
+    try {
+      await _users.doc(userId).update({
+        'name': name.trim(),
+        'lastActivity': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (exception) {
+      throw _firestoreFailure(exception);
+    }
+  }
+
+  CollectionReference<Map<String, dynamic>> get _users =>
+      _firestore.collection('users');
+
+  AuthFailure _firestoreFailure(FirebaseException exception) {
+    if (exception.code == 'unavailable' ||
+        exception.code == 'network-request-failed') {
+      return const AuthFailure(
+        'No se pudo conectar. Revisa tu conexión a internet.',
+        code: 'network-request-failed',
+      );
+    }
+
+    return AuthFailure(
+      'No se pudo guardar la información de la cuenta.',
+      code: exception.code,
+    );
+  }
+}

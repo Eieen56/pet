@@ -1,0 +1,19 @@
+name: Validación del código
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**', 'docs/**', 'test/**', 'chore/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  beta-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test .github/scripts/lock-beta.test.cjs

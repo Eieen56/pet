@@ -1,0 +1,118 @@
+# PetReminder User
+
+Aplicación Flutter para Android orientada a organizar la alimentación de mascotas.
+
+## Estado de esta entrega
+
+Versión candidata: **1.0.0-beta.1+2**, en desarrollo. Esta entrega contiene
+código fuente y soporte de pruebas beta; el instalador se entrega por separado.
+No hay una versión estable certificada ni un APK publicado por esta entrega.
+
+Repositorio: https://github.com/Eieen56/pet.
+Consultar [pruebas beta](docs/PRUEBAS_BETA.md), [entregas](docs/ENTREGAS.md)
+y [cambios](CHANGELOG.md).
+
+### Requisitos y bloqueo actual
+
+- Flutter 3.44.6 / Dart 3.12.2 utilizados para intentar la validación local.
+- Android SDK y JDK 17; el proyecto utiliza Gradle 9.1 y Android Gradle Plugin 9.0.1.
+- El módulo `../petreminder_admin` es obligatorio y no viene en la carpeta
+  recibida. Recuperarlo antes de ejecutar los comandos siguientes; no se ha
+  sustituido ni eliminado la integración administrativa.
+- Generar para un proyecto Firebase propio la configuración Android y Dart
+  con FlutterFire (`flutterfire configure --platforms=android`), manteniendo
+  `com.petreminder.petreminder_user` como applicationId. Los archivos locales
+  `lib/firebase_options.dart`, `android/app/google-services.json`,
+  `firebase.json` y `.firebaserc` están excluidos de Git. No publicar cuentas
+  de servicio ni claves privadas. Configurar Authentication y proveedores
+  de correo/Google, y revisar reglas e índices antes de desplegar.
+- `android/local.properties` debe apuntar al SDK y Flutter de la computadora
+  actual; el archivo recibido conserva rutas de otra computadora y no se publica.
+
+Las pruebas Flutter y el build intentados no avanzaron más allá de la
+resolución de dependencias por la ausencia del módulo administrativo.
+La CI valida la política de cierre de comentarios; aún no certifica la app.
+Para añadir build Android a CI, primero incorporar el módulo a una ubicación
+reproducible, ajustar su ruta y configurar Firebase sin exponer datos sensibles.
+
+## Versionado y continuación
+
+`main` es la rama de integración. Antes de integrar cambios, ejecutar las
+comprobaciones correspondientes y revisar el diff. Esta primera línea base
+no está certificada como estable por faltar la dependencia administrativa.
+Utilizar ramas temporales `feat/...`, `fix/...`, `docs/...`, `test/...` o
+`chore/...`, con Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`,
+`chore:`) y actualizar el changelog.
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git switch -c feat/siguiente-mejora
+# Editar, revisar y validar antes del commit
+git diff
+flutter pub get
+flutter analyze
+flutter test
+node --test .github/scripts/lock-beta.test.cjs
+git add <archivos-revisados>
+git commit -m "feat: describir la mejora"
+git push -u origin feat/siguiente-mejora
+```
+
+Integrar la rama revisada mediante pull request o merge local comprobado,
+y eliminarla cuando esté integrada. Aplicar SemVer; los siguientes candidatos
+serían `1.0.0-beta.2+3`, etc. Crear tags preliminares solo sobre commits
+comprobados y enviados. No crear `v1.0.0` estable hasta validar la aplicación.
+Las Releases preliminares con APK y SHA-256 corresponden a la distribución
+separada y están pendientes. No reemplazar artefactos ya distribuidos.
+
+## Comandos básicos
+
+```powershell
+flutter pub get
+flutter analyze
+flutter test
+flutter run
+```
+
+## Firebase
+
+El proyecto Android está conectado a `petreminder-user-2026` y utiliza:
+
+- Firebase Authentication para correo/contraseña y Google Sign-In.
+- Cloud Firestore para usuarios, mascotas, horarios e historial.
+- Reglas por propietario en `firestore.rules`.
+- Deteccion del Custom Claim `admin: true` para abrir el modulo administrativo
+  dentro de la misma aplicacion Android.
+
+Las fotografías de mascotas y perfil se guardan únicamente en el almacenamiento
+privado de la aplicación en el teléfono. Firebase Storage no se utiliza y
+`storage.rules` deniega todas las operaciones.
+
+Para desplegar las reglas de Firestore:
+
+```powershell
+firebase deploy --only firestore:rules --project petreminder-user-2026
+```
+
+El panel administrativo se comparte desde `../petreminder_admin`. Tras iniciar
+sesion, GoRouter envia las cuentas con el Custom Claim booleano `admin: true` a
+`/admin/dashboard`; las cuentas normales permanecen en el flujo de mascotas.
+El cliente movil no puede asignar ese claim ni modificar `accountStatus` sin
+los permisos administrativos validados por Firestore.
+
+## Notificaciones Android
+
+La aplicación solicita permiso para notificaciones y alarmas exactas. Cada
+horario activo genera dos recordatorios locales diarios: cinco minutos antes y
+a la hora indicada. Android puede volver a pedir el permiso de alarmas exactas
+después de reinstalar la aplicación.
+
+## Compilación
+
+```powershell
+flutter build apk --debug
+```
+
+El APK resultante se genera en
+`build/app/outputs/flutter-apk/app-debug.apk`.

@@ -1,0 +1,33 @@
+name: Cierre de comentarios beta
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+      timezone: America/Mexico_City
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sin bloquear conversaciones'
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: beta-feedback-lock
+  cancel-in-progress: false
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@v7
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+        with:
+          script: |
+            const { lockBeta } = require('./.github/scripts/lock-beta.cjs');
+            await lockBeta({ github, context, core, dryRun: process.env.DRY_RUN === 'true' });

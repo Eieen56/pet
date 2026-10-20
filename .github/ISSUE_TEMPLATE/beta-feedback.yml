@@ -1,0 +1,70 @@
+name: Reporte de prueba beta
+description: Un reporte por tester para la ronda beta-2026-10
+title: '[beta-2026-10] Tester '
+body:
+  - type: markdown
+    attributes:
+      value: 'Completar el título con 1, 2 o 3. El responsable debe aplicar tester-feedback y beta-2026-10 y registrar el número del issue. No incluir contraseñas ni datos personales.'
+  - type: dropdown
+    id: tester
+    attributes:
+      label: Identificador del tester
+      options: [Tester 1, Tester 2, Tester 3]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión probada y SHA-256 del artefacto
+      placeholder: '1.0.0-beta.1+2 — hash pendiente de distribución'
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Sistema operativo y dispositivo
+    validations:
+      required: true
+  - type: input
+    id: feature
+    attributes:
+      label: Funcionalidad probada
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos realizados
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultado obtenido
+    validations:
+      required: true
+  - type: textarea
+    id: errors
+    attributes:
+      label: Errores encontrados
+  - type: textarea
+    id: usability
+    attributes:
+      label: Problemas de usabilidad
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Sugerencias
+  - type: dropdown
+    id: result
+    attributes:
+      label: Resultado general de la prueba
+      options: [Satisfactorio, Con errores, No pude instalar o ejecutar]
+    validations:
+      required: true
