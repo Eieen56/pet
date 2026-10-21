@@ -13,5 +13,14 @@ La versión anterior declarada era `1.0.0+1`, sin historial Git ni tags locales.
 - Añade formulario de feedback y bloqueo por lista explícita de tres issues.
 - Prueba el cierre con API simulada; la aplicación aún requiere validar su build.
 - Excluye configuración local de Firebase, credenciales y binarios de Git.
+- Integra `petreminder_admin/` dentro del repositorio y conserva la sesión
+  al navegar y editar el perfil, con comprobación del claim administrativo.
+- Corrige la carga reactiva del nombre y las reparaciones de perfiles vacíos.
+- Deja una única entrada para agregar mascotas.
+- Limpia comidas al borrar mascotas/horarios y excluye registros huérfanos
+  de las estadísticas; evita su recreación mediante transacciones y reglas.
+- Añade ocho variedades por especie, captura manual y edad en años y meses,
+  con límites equivalentes en el formulario y en Firestore.
 
-No se publica instalador ni se certifica una prueba funcional de Android.
+El instalador se gestiona en el repositorio separado `Eieen56/app_pet`.
+Consultar el registro de entregas para los resultados de compilación y publicación.

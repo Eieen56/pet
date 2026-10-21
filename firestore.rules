@@ -43,12 +43,19 @@ service cloud.firestore {
         && data.accountStatus in ['active', 'disabled'];
     }
 
+    function maxPetAge(species) {
+      return {'Perro': 30, 'Gato': 30, 'Conejo': 20, 'Ave': 100,
+        'Hámster': 5, 'Tortuga': 200, 'Pez': 100, 'Otro': 250}.get(species, 250);
+    }
+
     function hasValidPetData(data) {
       return data.keys().hasOnly([
           'name',
           'species',
           'breed',
           'age',
+          'ageMonths',
+          'customSpecies',
           'description',
           'photoUrl',
           'createdAt'
@@ -67,10 +74,17 @@ service cloud.firestore {
           'Otro'
         ]
         && data.breed is string
+        && (data.breed.size() == 0 || data.breed.size() >= 2)
         && data.breed.size() <= 80
         && data.age is int
         && data.age >= 0
-        && data.age <= 100
+        && data.get('ageMonths', 0) is int
+        && data.get('ageMonths', 0) >= 0
+        && data.get('ageMonths', 0) <= 11
+        && data.age * 12 + data.get('ageMonths', 0) <= maxPetAge(data.species) * 12
+        && data.get('customSpecies', '') is string
+        && data.get('customSpecies', '').size() <= 40
+        && (data.species != 'Otro' || data.get('customSpecies', '').size() >= 2)
         && data.description is string
         && data.description.size() <= 500
         && data.photoUrl == null
@@ -157,6 +171,8 @@ service cloud.firestore {
               'species',
               'breed',
               'age',
+              'ageMonths',
+              'customSpecies',
               'description',
               'photoUrl'
             ]);
@@ -167,6 +183,7 @@ service cloud.firestore {
           allow read: if isActiveOwner(userId) || isAdmin();
 
           allow create: if isActiveOwner(userId)
+            && exists(/databases/$(database)/documents/users/$(userId)/pets/$(petId))
             && hasValidScheduleData(request.resource.data, scheduleId)
             && request.resource.data.createdAt == request.time;
 
@@ -185,6 +202,8 @@ service cloud.firestore {
         allow read: if isActiveOwner(userId) || isAdmin();
 
         allow create: if isActiveOwner(userId)
+          && exists(/databases/$(database)/documents/users/$(userId)/pets/$(request.resource.data.petId))
+          && exists(/databases/$(database)/documents/users/$(userId)/pets/$(request.resource.data.petId)/feedingSchedules/$(request.resource.data.scheduleId))
           && hasValidHistoryData(request.resource.data, historyId, userId)
           && request.resource.data.createdAt == request.time
           && (
@@ -201,7 +220,6 @@ service cloud.firestore {
           && request.resource.data.petId == resource.data.petId
           && request.resource.data.petName == resource.data.petName
           && request.resource.data.scheduleId == resource.data.scheduleId
-          && request.resource.data.scheduledTime == resource.data.scheduledTime
           && request.resource.data.dateKey == resource.data.dateKey
           && request.resource.data.createdAt == resource.data.createdAt
           && (
@@ -215,6 +233,7 @@ service cloud.firestore {
               && resource.data.fedAt == null
               && request.resource.data.status == 'fed'
               && request.resource.data.fedAt == request.time
+              && request.resource.data.scheduledTime == resource.data.scheduledTime
               && request.resource.data.diff(resource.data).affectedKeys()
                 .hasOnly(['status', 'fedAt']))
           );

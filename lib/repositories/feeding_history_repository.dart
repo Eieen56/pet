@@ -37,51 +37,45 @@ class FeedingHistoryRepository {
 
       final now = DateTime.now();
       final dateKey = FeedingRecord.dateKeyFor(now);
-      final history = _history(userId);
-      final existing = await history.where('dateKey', isEqualTo: dateKey).get();
-      final existingById = {
-        for (final document in existing.docs) document.id: document,
-      };
-      final batch = _firestore.batch();
-      var hasWrites = false;
-
       for (final schedule in schedules.docs) {
-        final data = schedule.data();
         final id = FeedingRecord.documentId(
           petId: pet.id,
           scheduleId: schedule.id,
           date: now,
         );
-        final existingRecord = existingById[id];
-        if (existingRecord != null) {
-          final existingData = existingRecord.data();
-          final scheduledTime = data['time'] as String? ?? '00:00';
-          if (existingData['status'] == 'pending' &&
-              existingData['scheduledTime'] != scheduledTime) {
-            batch.update(existingRecord.reference, {
-              'scheduledTime': scheduledTime,
-            });
-            hasWrites = true;
+        final reference = _history(userId).doc(id);
+        await _firestore.runTransaction((transaction) async {
+          final currentPet = await transaction.get(
+            schedule.reference.parent.parent!,
+          );
+          final currentSchedule = await transaction.get(schedule.reference);
+          final existing = await transaction.get(reference);
+          if (!currentPet.exists ||
+              !currentSchedule.exists ||
+              currentSchedule.data()?['active'] != true) {
+            return;
           }
-          continue;
-        }
-        batch.set(history.doc(id), {
-          'id': id,
-          'userId': userId,
-          'petId': pet.id,
-          'petName': pet.name,
-          'scheduleId': schedule.id,
-          'scheduledTime': data['time'] as String? ?? '00:00',
-          'dateKey': dateKey,
-          'status': 'pending',
-          'fedAt': null,
-          'createdAt': FieldValue.serverTimestamp(),
+          final scheduledTime = currentSchedule.data()!['time'] as String;
+          if (existing.exists) {
+            if (existing.data()?['status'] == 'pending' &&
+                existing.data()?['scheduledTime'] != scheduledTime) {
+              transaction.update(reference, {'scheduledTime': scheduledTime});
+            }
+            return;
+          }
+          transaction.set(reference, {
+            'id': id,
+            'userId': userId,
+            'petId': pet.id,
+            'petName': currentPet.data()!['name'],
+            'scheduleId': schedule.id,
+            'scheduledTime': scheduledTime,
+            'dateKey': dateKey,
+            'status': 'pending',
+            'fedAt': null,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
         });
-        hasWrites = true;
-      }
-
-      if (hasWrites) {
-        await batch.commit();
       }
     } on FirebaseException catch (exception) {
       throw FeedingHistoryFailure.fromFirebase(exception);
@@ -120,7 +114,23 @@ class FeedingHistoryRepository {
 
     try {
       await _firestore.runTransaction((transaction) async {
+        final petReference = _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('pets')
+            .doc(pet.id);
+        final currentPet = await transaction.get(petReference);
+        final schedule = await transaction.get(
+          petReference.collection('feedingSchedules').doc(scheduleId),
+        );
         final snapshot = await transaction.get(reference);
+        if (!currentPet.exists ||
+            !schedule.exists ||
+            schedule.data()?['active'] != true) {
+          throw const FeedingHistoryFailure(
+            'La mascota o el horario ya no están disponibles.',
+          );
+        }
         if (snapshot.exists && snapshot.data()?['status'] == 'fed') {
           return;
         }
@@ -135,9 +145,9 @@ class FeedingHistoryRepository {
           'id': id,
           'userId': userId,
           'petId': pet.id,
-          'petName': pet.name,
+          'petName': currentPet.data()!['name'],
           'scheduleId': scheduleId,
-          'scheduledTime': scheduledTime,
+          'scheduledTime': schedule.data()!['time'],
           'dateKey': dateKey,
           'status': 'fed',
           'fedAt': FieldValue.serverTimestamp(),

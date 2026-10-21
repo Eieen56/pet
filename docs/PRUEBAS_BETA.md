@@ -11,7 +11,8 @@ Código candidato: `1.0.0-beta.1+2`. Los tres testers deben recibir exactamente
 el mismo APK y SHA-256. La publicación del instalador se gestiona por separado:
 en esta entrega NO hay APK publicado ni Release verificada.
 
-Página prevista: https://github.com/Eieen56/pet/releases.
+Página prevista para el APK: https://github.com/Eieen56/app_pet/releases.
+Código fuente: https://github.com/Eieen56/pet.
 No descargar archivos de terceros ni asumir que el código fuente es instalable.
 El responsable debe completar el enlace directo, SHA-256 y requisitos Android
 tras compilar y probar la app en un dispositivo. El mínimo efectivo de Android
@@ -29,6 +30,10 @@ de producción. No sustituir un APK ya distribuido: corregir en una nueva beta.
 1. Registrar una cuenta de prueba, entrar/salir y recuperar contraseña.
 2. Probar Google Sign-In; anotar fallos de configuración o de conectividad.
 3. Crear, editar y consultar mascotas y sus fotografías.
+   Comprobar las variedades de cada especie y la captura manual con «Otro».
+   Probar 0 años / 6 meses, rechazar 12 meses y rechazar 30 años / 1 mes
+   para Gato. Borrar un horario o mascota y comprobar que las estadísticas
+   ya no cuentan sus comidas.
 4. Crear y modificar horarios; probar los recordatorios de cinco minutos antes
    y de la hora exacta con los permisos necesarios y la app en segundo plano.
 5. Registrar alimentación y consultar historial, evitando duplicados.

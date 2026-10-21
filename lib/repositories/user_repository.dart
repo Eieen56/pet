@@ -38,26 +38,32 @@ class UserRepository {
     final reference = _users.doc(user.uid);
 
     try {
-      final snapshot = await reference.get();
-      if (snapshot.exists) {
-        if (snapshot.data()?['accountStatus'] == AppUser.disabledStatus) {
+      await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(reference);
+        final data = snapshot.data();
+        if (data?['accountStatus'] == AppUser.disabledStatus) {
           throw const AuthFailure(
             'Esta cuenta se encuentra deshabilitada.',
             code: 'user-disabled',
           );
         }
-        await reference.update({'lastActivity': FieldValue.serverTimestamp()});
-        return;
-      }
-
-      await reference.set({
-        'uid': user.uid,
-        'name': user.displayName?.trim() ?? '',
-        'email': user.email ?? '',
-        'photoUrl': user.photoURL,
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastActivity': FieldValue.serverTimestamp(),
-        'accountStatus': AppUser.activeStatus,
+        final name = _nameFor(user);
+        if (snapshot.exists) {
+          transaction.update(reference, {
+            if ((data?['name'] as String? ?? '').trim().isEmpty) 'name': name,
+            'lastActivity': FieldValue.serverTimestamp(),
+          });
+        } else {
+          transaction.set(reference, {
+            'uid': user.uid,
+            'name': name,
+            'email': user.email ?? '',
+            'photoUrl': user.photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+            'lastActivity': FieldValue.serverTimestamp(),
+            'accountStatus': AppUser.activeStatus,
+          });
+        }
       });
     } on AuthFailure {
       rethrow;
@@ -67,13 +73,16 @@ class UserRepository {
   }
 
   Future<void> updateLastActivity(User user) async {
-    try {
-      await _users.doc(user.uid).update({
-        'lastActivity': FieldValue.serverTimestamp(),
-      });
-    } on FirebaseException catch (exception) {
-      throw _firestoreFailure(exception);
-    }
+    await ensureGoogleUserDocument(user);
+  }
+
+  String _nameFor(User user) {
+    final displayName = user.displayName?.trim() ?? '';
+    final emailName = user.email?.split('@').first.trim() ?? '';
+    final name = displayName.length >= 2 ? displayName : emailName;
+    return name.length >= 2
+        ? name.substring(0, name.length.clamp(0, 60))
+        : 'Mi perfil';
   }
 
   Future<void> ensureAccountIsActive(User user) async {

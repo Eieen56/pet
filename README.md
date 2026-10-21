@@ -6,19 +6,19 @@ Aplicación Flutter para Android orientada a organizar la alimentación de masco
 
 Versión candidata: **1.0.0-beta.1+2**, en desarrollo. Esta entrega contiene
 código fuente y soporte de pruebas beta; el instalador se entrega por separado.
-No hay una versión estable certificada ni un APK publicado por esta entrega.
+No hay una versión estable certificada. El APK beta se distribuye por separado
+en https://github.com/Eieen56/app_pet/releases cuando su publicación esté verificada.
 
 Repositorio: https://github.com/Eieen56/pet.
 Consultar [pruebas beta](docs/PRUEBAS_BETA.md), [entregas](docs/ENTREGAS.md)
 y [cambios](CHANGELOG.md).
 
-### Requisitos y bloqueo actual
+### Requisitos
 
 - Flutter 3.44.6 / Dart 3.12.2 utilizados para intentar la validación local.
 - Android SDK y JDK 17; el proyecto utiliza Gradle 9.1 y Android Gradle Plugin 9.0.1.
-- El módulo `../petreminder_admin` es obligatorio y no viene en la carpeta
-  recibida. Recuperarlo antes de ejecutar los comandos siguientes; no se ha
-  sustituido ni eliminado la integración administrativa.
+- El módulo `petreminder_admin/` está incluido como dependencia local dentro
+  de este repositorio. Sus pantallas también se abren dentro de la app Android.
 - Generar para un proyecto Firebase propio la configuración Android y Dart
   con FlutterFire (`flutterfire configure --platforms=android`), manteniendo
   `com.petreminder.petreminder_user` como applicationId. Los archivos locales
@@ -29,11 +29,35 @@ y [cambios](CHANGELOG.md).
 - `android/local.properties` debe apuntar al SDK y Flutter de la computadora
   actual; el archivo recibido conserva rutas de otra computadora y no se publica.
 
-Las pruebas Flutter y el build intentados no avanzaron más allá de la
-resolución de dependencias por la ausencia del módulo administrativo.
-La CI valida la política de cierre de comentarios; aún no certifica la app.
-Para añadir build Android a CI, primero incorporar el módulo a una ubicación
-reproducible, ajustar su ruta y configurar Firebase sin exponer datos sensibles.
+La CI analiza y prueba ambos módulos y la política de cierre de comentarios.
+Para esas pruebas genera configuración Firebase ficticia, sin conectar a
+producción. El build Android usa la configuración local real, excluida de Git.
+Consultar los resultados reales de esta entrega en `docs/ENTREGAS.md`.
+
+### Mascotas y validación
+
+Solo hay un botón «Agregar mascota» en Inicio. Cada especie conocida ofrece
+al menos ocho razas o variedades, «Mestizo / Sin raza» y «Otro». Esta última
+opción permite escribir una variedad; la especie «Otro» permite escribir
+también la especie. La edad se captura en años y meses, y se muestra en ambos
+módulos sin perder los documentos antiguos, que se leen con cero meses.
+
+| Campo | Rango permitido |
+| --- | --- |
+| Nombre de usuario o mascota | 2–60 caracteres |
+| Especie manual | 2–40 caracteres |
+| Raza manual | 2–80 caracteres; opcional para especie manual |
+| Descripción | 0–500 caracteres |
+| Meses adicionales | 0–11 |
+| Edad total de Perro / Gato | 0–30 años |
+| Conejo / Ave / Hámster | 0–20 / 0–100 / 0–5 años |
+| Tortuga / Pez / Otro | 0–200 / 0–100 / 0–250 años |
+
+El máximo incluye los meses: 30 años y 1 mes no es válido para Gato. Son
+límites de registro de la aplicación, no estimaciones de esperanza de vida.
+Los límites también se validan en Firestore. Al borrar una mascota o un
+horario se eliminan sus registros de alimentación; historial y estadísticas
+excluyen registros huérfanos de versiones anteriores.
 
 ## Versionado y continuación
 
@@ -95,11 +119,16 @@ Para desplegar las reglas de Firestore:
 firebase deploy --only firestore:rules --project petreminder-user-2026
 ```
 
-El panel administrativo se comparte desde `../petreminder_admin`. Tras iniciar
+El panel administrativo se comparte desde `petreminder_admin/`. Tras iniciar
 sesion, GoRouter envia las cuentas con el Custom Claim booleano `admin: true` a
 `/admin/dashboard`; las cuentas normales permanecen en el flujo de mascotas.
 El cliente movil no puede asignar ese claim ni modificar `accountStatus` sin
 los permisos administrativos validados por Firestore.
+
+No se concede acceso por comparar un usuario o una contraseña en el cliente.
+Se conservan las cuentas existentes en Firebase; no hay contraseñas
+administrativas almacenadas en este repositorio. El alias histórico `eileno`
+se conserva por compatibilidad, pero no acredita que esa cuenta siga vigente.
 
 ## Notificaciones Android
 

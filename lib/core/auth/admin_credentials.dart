@@ -2,11 +2,13 @@ abstract final class AdminCredentials {
   static const username = 'eileno';
   static const email = 'eileno@petreminder.local';
 
+  static const _aliases = {username: email};
+
   static String normalizeEmail(String value) {
     final trimmed = value.trim();
-    return trimmed.toLowerCase() == username ? email : trimmed;
+    return _aliases[trimmed.toLowerCase()] ?? trimmed;
   }
 
   static bool isUsername(String value) =>
-      value.trim().toLowerCase() == username;
+      _aliases.containsKey(value.trim().toLowerCase());
 }

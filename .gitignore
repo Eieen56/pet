@@ -63,3 +63,12 @@ firebase.json
 *.zip
 .codex/
 AGENTS.md
+node_modules/
+.firebase/
+**/firebase_options.dart
+**/google-services.json
+**/local.properties
+**/firebase.json
+**/.firebaserc
+**/*service-account*.json
+**/*firebase-adminsdk*.json

@@ -18,6 +18,14 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(appUserProvider);
+    final authUser = ref.watch(authStateChangesProvider).value;
+    final displayName = profile.value?.name.trim();
+    final authName = authUser?.displayName?.trim();
+    final name = displayName?.isNotEmpty == true
+        ? displayName!
+        : authName?.isNotEmpty == true
+        ? authName!
+        : 'Mi perfil';
     final photoPath = ref.watch(profilePhotoPathProvider).value;
     final history = ref.watch(feedingHistoryProvider).value ?? const [];
     final pets = ref.watch(petsProvider).value ?? const <Pet>[];
@@ -62,7 +70,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user?.name.isNotEmpty == true ? user!.name : 'Usuario',
+                    name,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w600,
@@ -70,7 +78,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    user?.email ?? '',
+                    user?.email ?? authUser?.email ?? '',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -81,7 +89,7 @@ class ProfileScreen extends ConsumerWidget {
                     child: OutlinedButton.icon(
                       onPressed: isBusy
                           ? null
-                          : () => _editName(context, ref, user?.name ?? ''),
+                          : () => _editName(context, ref, name),
                       icon: const Icon(Icons.edit_outlined),
                       label: const Text('Editar nombre'),
                     ),

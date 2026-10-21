@@ -20,6 +20,28 @@ class PetDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final pets = ref.watch(petsProvider);
+    final current = pets.value?.where((item) => item.id == pet.id).firstOrNull;
+    if (pets.hasValue && !pets.isLoading && current == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Mascota no disponible')),
+        body: Center(child: FilledButton(
+          onPressed: () => context.go(AppRoutes.home),
+          child: const Text('Volver al inicio'),
+        )),
+      );
+    }
+    return _PetDetailView(pet: current ?? pet);
+  }
+}
+
+class _PetDetailView extends ConsumerWidget {
+  const _PetDetailView({required this.pet});
+
+  final Pet pet;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final schedules = ref.watch(feedingSchedulesProvider(pet.id));
     final scheduleOperation = ref.watch(feedingScheduleControllerProvider);
     final historyOperation = ref.watch(feedingHistoryControllerProvider);
@@ -330,9 +352,9 @@ class _PetSummary extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${pet.species}${pet.breed.isEmpty ? '' : ' · ${pet.breed}'}',
+                '${pet.speciesLabel}${pet.breed.isEmpty ? '' : ' · ${pet.breed}'}',
               ),
-              Text('${pet.age} ${pet.age == 1 ? 'año' : 'años'}'),
+              Text(pet.ageLabel),
               if (pet.description.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(

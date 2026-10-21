@@ -42,7 +42,7 @@ void main() {
     test('validates pet ages', () {
       expect(InputValidators.petAge(''), isNotNull);
       expect(InputValidators.petAge('-1'), isNotNull);
-      expect(InputValidators.petAge('101'), isNotNull);
+      expect(InputValidators.petAge('251'), isNotNull);
       expect(InputValidators.petAge('4'), isNull);
     });
 

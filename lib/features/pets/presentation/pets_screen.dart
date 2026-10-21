@@ -34,25 +34,14 @@ class PetsScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('PetReminder'),
-        actions: [
-          IconButton(
-            tooltip: 'Agregar mascota',
-            onPressed: operation.isLoading
-                ? null
-                : () => context.push(AppRoutes.addPet),
-            icon: const Icon(Icons.add_rounded),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('PetReminder')),
       body: SafeArea(
         child: pets.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) =>
               _ErrorState(onRetry: () => ref.invalidate(petsProvider)),
           data: (items) => items.isEmpty
-              ? _EmptyState(onAdd: () => context.push(AppRoutes.addPet))
+              ? const _EmptyState()
               : RefreshIndicator(
                   onRefresh: () async => ref.refresh(petsProvider.future),
                   child: ListView.separated(
@@ -83,7 +72,7 @@ class PetsScreen extends ConsumerWidget {
             ? null
             : () => context.push(AppRoutes.addPet),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Agregar'),
+        label: const Text('Agregar mascota'),
       ),
     );
   }
@@ -221,7 +210,7 @@ class _PetCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      pet.species,
+                      pet.speciesLabel,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 10),
@@ -296,9 +285,7 @@ class _PetCard extends ConsumerWidget {
 enum _PetAction { edit, delete }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onAdd});
-
-  final VoidCallback onAdd;
+  const _EmptyState();
 
   @override
   Widget build(BuildContext context) {
@@ -324,12 +311,6 @@ class _EmptyState extends StatelessWidget {
               'Agrega la primera para comenzar.',
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Agregar mascota'),
             ),
           ],
         ),

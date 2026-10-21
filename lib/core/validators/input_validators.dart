@@ -1,4 +1,5 @@
 import 'package:petreminder_user/core/auth/admin_credentials.dart';
+import 'package:petreminder_user/core/pets/pet_catalog.dart';
 
 abstract final class InputValidators {
   static final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
@@ -9,6 +10,9 @@ abstract final class InputValidators {
     }
     if (value.trim().length < 2) {
       return 'El nombre es demasiado corto.';
+    }
+    if (value.trim().length > 60) {
+      return 'Usa un nombre de hasta 60 caracteres.';
     }
     return null;
   }
@@ -21,6 +25,7 @@ abstract final class InputValidators {
     if (!_emailPattern.hasMatch(email)) {
       return 'Ingresa un correo válido.';
     }
+    if (email.length > 254) return 'Usa un correo de hasta 254 caracteres.';
     return null;
   }
 
@@ -30,7 +35,7 @@ abstract final class InputValidators {
       return 'Ingresa tu usuario o correo.';
     }
     if (AdminCredentials.isUsername(login) || _emailPattern.hasMatch(login)) {
-      return null;
+      return login.length <= 254 ? null : 'Usa hasta 254 caracteres.';
     }
     return 'Ingresa un usuario o correo válido.';
   }
@@ -42,6 +47,7 @@ abstract final class InputValidators {
     if (value.length < 6) {
       return 'Usa al menos 6 caracteres.';
     }
+    if (value.length > 128) return 'Usa como máximo 128 caracteres.';
     return null;
   }
 
@@ -59,13 +65,40 @@ abstract final class InputValidators {
     return null;
   }
 
-  static String? petAge(String? value) {
+  static String? petAge(
+    String? value, {
+    String species = 'Otro',
+    int months = 0,
+  }) {
     final age = int.tryParse(value?.trim() ?? '');
     if (age == null) {
       return 'Ingresa la edad en años.';
     }
-    if (age < 0 || age > 100) {
-      return 'Ingresa una edad entre 0 y 100.';
+    final max = PetCatalog.maximumYears(species);
+    if (age < 0 || age * 12 + months > max * 12) {
+      return 'La edad máxima para $species es $max años.';
+    }
+    return null;
+  }
+
+  static String? petMonths(String? value) {
+    final months = int.tryParse(value?.trim() ?? '');
+    return months == null || months < 0 || months > 11
+        ? 'Ingresa de 0 a 11 meses.'
+        : null;
+  }
+
+  static String? petBreed(String? value) =>
+      _boundedText(value, 'la raza o variedad', 2, 80);
+  static String? customSpecies(String? value) =>
+      _boundedText(value, 'la especie', 2, 40);
+  static String? petDescription(String? value) =>
+      (value?.trim().length ?? 0) > 500 ? 'Usa hasta 500 caracteres.' : null;
+
+  static String? _boundedText(String? value, String field, int min, int max) {
+    final text = value?.trim() ?? '';
+    if (text.length < min || text.length > max) {
+      return 'Escribe $field con $min a $max caracteres.';
     }
     return null;
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:petreminder_user/core/errors/pet_failure.dart';
 import 'package:petreminder_user/models/pet.dart';
+import 'package:petreminder_user/providers/auth_providers.dart';
 import 'package:petreminder_user/providers/firebase_providers.dart';
 import 'package:petreminder_user/providers/notification_providers.dart';
 import 'package:petreminder_user/repositories/pet_repository.dart';
@@ -17,7 +18,7 @@ final petPhotoServiceProvider = Provider<PetPhotoService>(
 );
 
 final petsProvider = StreamProvider.autoDispose<List<Pet>>((ref) {
-  final user = ref.watch(firebaseAuthProvider).currentUser;
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) {
     return Stream.value(const []);
   }
@@ -26,7 +27,7 @@ final petsProvider = StreamProvider.autoDispose<List<Pet>>((ref) {
 
 final petPhotoPathProvider = FutureProvider.autoDispose.family<String?, String>(
   (ref, petId) {
-    final user = ref.watch(firebaseAuthProvider).currentUser;
+    final user = ref.watch(authStateChangesProvider).value;
     if (user == null) {
       return Future.value(null);
     }

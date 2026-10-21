@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petreminder_user/core/errors/pet_failure.dart';
+import 'package:petreminder_user/core/firestore/delete_query.dart';
 import 'package:petreminder_user/models/pet.dart';
 
 class PetRepository {
@@ -39,16 +40,20 @@ class PetRepository {
   Future<void> deletePet(String userId, String petId) async {
     try {
       final petReference = _pets(userId).doc(petId);
-      final schedules = await petReference.collection('feedingSchedules').get();
-      for (var index = 0; index < schedules.docs.length; index += 450) {
-        final batch = _firestore.batch();
-        final end = (index + 450).clamp(0, schedules.docs.length);
-        for (final document in schedules.docs.sublist(index, end)) {
-          batch.delete(document.reference);
-        }
-        await batch.commit();
-      }
+      // Primero se retira la mascota para impedir nuevos registros concurrentes.
       await petReference.delete();
+      await deleteQuery(
+        _firestore,
+        petReference.collection('feedingSchedules'),
+      );
+      await deleteQuery(
+        _firestore,
+        _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('feedingHistory')
+            .where('petId', isEqualTo: petId),
+      );
     } on FirebaseException catch (exception) {
       throw PetFailure.fromFirebase(exception);
     }

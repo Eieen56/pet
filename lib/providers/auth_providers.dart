@@ -30,7 +30,7 @@ final authStateChangesProvider = StreamProvider<User?>((ref) {
 final adminAccessProvider = FutureProvider<bool>((ref) async {
   final user = ref.watch(authStateChangesProvider).value;
   if (user == null) return false;
-  final token = await user.getIdTokenResult(true);
+  final token = await user.getIdTokenResult();
   return token.claims?['admin'] == true;
 });
 

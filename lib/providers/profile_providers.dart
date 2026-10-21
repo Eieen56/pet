@@ -12,7 +12,7 @@ final profilePhotoServiceProvider = Provider<ProfilePhotoService>(
 );
 
 final appUserProvider = StreamProvider.autoDispose<AppUser?>((ref) {
-  final user = ref.watch(firebaseAuthProvider).currentUser;
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) {
     return Stream.value(null);
   }
@@ -20,7 +20,7 @@ final appUserProvider = StreamProvider.autoDispose<AppUser?>((ref) {
 });
 
 final profilePhotoPathProvider = FutureProvider.autoDispose<String?>((ref) {
-  final user = ref.watch(firebaseAuthProvider).currentUser;
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) {
     return Future.value(null);
   }

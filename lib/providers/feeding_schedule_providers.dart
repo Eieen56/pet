@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:petreminder_user/core/errors/feeding_schedule_failure.dart';
 import 'package:petreminder_user/models/feeding_schedule.dart';
 import 'package:petreminder_user/models/pet.dart';
+import 'package:petreminder_user/providers/auth_providers.dart';
 import 'package:petreminder_user/providers/firebase_providers.dart';
 import 'package:petreminder_user/providers/notification_providers.dart';
 import 'package:petreminder_user/repositories/feeding_schedule_repository.dart';
@@ -14,7 +15,7 @@ final feedingScheduleRepositoryProvider = Provider<FeedingScheduleRepository>(
 
 final feedingSchedulesProvider = StreamProvider.autoDispose
     .family<List<FeedingSchedule>, String>((ref, petId) {
-      final user = ref.watch(firebaseAuthProvider).currentUser;
+      final user = ref.watch(authStateChangesProvider).value;
       if (user == null) {
         return Stream.value(const []);
       }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petreminder_user/core/errors/feeding_schedule_failure.dart';
+import 'package:petreminder_user/core/firestore/delete_query.dart';
 import 'package:petreminder_user/models/feeding_schedule.dart';
 
 class FeedingScheduleRepository {
@@ -72,6 +73,15 @@ class FeedingScheduleRepository {
   ) async {
     try {
       await _schedules(userId, petId).doc(scheduleId).delete();
+      await deleteQuery(
+        _firestore,
+        _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('feedingHistory')
+            .where('petId', isEqualTo: petId)
+            .where('scheduleId', isEqualTo: scheduleId),
+      );
     } on FirebaseException catch (exception) {
       throw FeedingScheduleFailure.fromFirebase(exception);
     }

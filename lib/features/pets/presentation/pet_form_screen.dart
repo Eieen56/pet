@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petreminder_user/core/errors/pet_failure.dart';
+import 'package:petreminder_user/core/pets/pet_catalog.dart';
 import 'package:petreminder_user/core/validators/input_validators.dart';
 import 'package:petreminder_user/models/pet.dart';
 import 'package:petreminder_user/providers/pet_providers.dart';
@@ -23,8 +24,11 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _breedController;
   late final TextEditingController _ageController;
+  late final TextEditingController _monthsController;
+  late final TextEditingController _customSpeciesController;
   late final TextEditingController _descriptionController;
   late String _species;
+  String? _breedSelection;
   String? _selectedPhotoPath;
   bool _removeExistingPhoto = false;
 
@@ -36,9 +40,24 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
     final pet = widget.pet;
     _nameController = TextEditingController(text: pet?.name);
     _breedController = TextEditingController(text: pet?.breed);
-    _ageController = TextEditingController(text: pet?.age.toString());
+    _ageController = TextEditingController(text: pet?.age.toString() ?? '0');
+    _monthsController = TextEditingController(
+      text: pet?.ageMonths.toString() ?? '0',
+    );
+    _customSpeciesController = TextEditingController(text: pet?.customSpecies);
     _descriptionController = TextEditingController(text: pet?.description);
     _species = pet?.species ?? Pet.speciesOptions.first;
+    if (!Pet.speciesOptions.contains(_species)) {
+      _customSpeciesController.text = _species;
+      _species = PetCatalog.other;
+    }
+    final breed = pet?.breed ?? '';
+    _breedSelection = breed.isEmpty
+        ? null
+        : (PetCatalog.breeds[_species] ?? []).contains(breed) ||
+              breed == 'Mestizo / Sin raza'
+        ? breed
+        : PetCatalog.other;
   }
 
   @override
@@ -46,6 +65,8 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
     _nameController.dispose();
     _breedController.dispose();
     _ageController.dispose();
+    _monthsController.dispose();
+    _customSpeciesController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -126,6 +147,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                     enabled: !operation.isLoading,
                     textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
+                    maxLength: 60,
                     decoration: const InputDecoration(
                       labelText: 'Nombre',
                       prefixIcon: Icon(Icons.pets_outlined),
@@ -153,23 +175,83 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                         ? null
                         : (value) {
                             if (value != null) {
-                              setState(() => _species = value);
+                              setState(() {
+                                _species = value;
+                                _breedSelection = null;
+                                _breedController.clear();
+                              });
                             }
                           },
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _breedController,
-                    enabled: !operation.isLoading,
-                    textCapitalization: TextCapitalization.words,
-                    textInputAction: TextInputAction.next,
-                    maxLength: 80,
-                    decoration: const InputDecoration(
-                      labelText: 'Raza (opcional)',
-                      prefixIcon: Icon(Icons.badge_outlined),
-                      border: OutlineInputBorder(),
+                  if (_species == PetCatalog.other) ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      key: const ValueKey('customSpecies'),
+                      controller: _customSpeciesController,
+                      enabled: !operation.isLoading,
+                      maxLength: 40,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Escribe la especie',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: InputValidators.customSpecies,
                     ),
-                  ),
+                  ],
+                  const SizedBox(height: 16),
+                  if (_species != PetCatalog.other)
+                    DropdownButtonFormField<String>(
+                      key: ValueKey('breed-$_species'),
+                      initialValue: _breedSelection,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Raza o variedad',
+                        border: OutlineInputBorder(),
+                      ),
+                      items:
+                          [
+                                ...PetCatalog.breeds[_species]!,
+                                'Mestizo / Sin raza',
+                                PetCatalog.other,
+                              ]
+                              .map(
+                                (breed) => DropdownMenuItem(
+                                  value: breed,
+                                  child: Text(breed),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: operation.isLoading
+                          ? null
+                          : (value) => setState(() => _breedSelection = value),
+                      validator: (value) => value == null
+                          ? 'Selecciona una raza o variedad.'
+                          : null,
+                    ),
+                  if (_species == PetCatalog.other ||
+                      _breedSelection == PetCatalog.other) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      key: const ValueKey('customBreed'),
+                      controller: _breedController,
+                      enabled: !operation.isLoading,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.next,
+                      maxLength: 80,
+                      decoration: InputDecoration(
+                        labelText: _species == PetCatalog.other
+                            ? 'Raza o variedad (opcional)'
+                            : 'Escribe la raza o variedad',
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) =>
+                          _species == PetCatalog.other &&
+                              (value?.trim().isEmpty ?? true)
+                          ? null
+                          : InputValidators.petBreed(value),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _ageController,
@@ -177,12 +259,34 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.next,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    maxLength: 3,
                     decoration: const InputDecoration(
                       labelText: 'Edad en años',
                       prefixIcon: Icon(Icons.cake_outlined),
                       border: OutlineInputBorder(),
                     ),
-                    validator: InputValidators.petAge,
+                    validator: (value) => InputValidators.petAge(
+                      value,
+                      species: _species,
+                      months: int.tryParse(_monthsController.text) ?? 0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    key: const ValueKey('ageMonths'),
+                    controller: _monthsController,
+                    enabled: !operation.isLoading,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    maxLength: 2,
+                    decoration: InputDecoration(
+                      labelText: 'Meses adicionales (0 a 11)',
+                      helperText:
+                          'Edad máxima para $_species: ${PetCatalog.maximumYears(_species)} años. Para menores de un año, escribe 0 años.',
+                      helperMaxLines: 3,
+                      border: const OutlineInputBorder(),
+                    ),
+                    validator: InputValidators.petMonths,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -197,6 +301,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                       alignLabelWithHint: true,
                       border: OutlineInputBorder(),
                     ),
+                    validator: InputValidators.petDescription,
                   ),
                   const SizedBox(height: 8),
                   FilledButton.icon(
@@ -254,8 +359,12 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
     final input = PetInput(
       name: _nameController.text,
       species: _species,
-      breed: _breedController.text,
+      breed: _species == PetCatalog.other || _breedSelection == PetCatalog.other
+          ? _breedController.text
+          : _breedSelection!,
       age: int.parse(_ageController.text),
+      ageMonths: int.parse(_monthsController.text),
+      customSpecies: _customSpeciesController.text,
       description: _descriptionController.text,
     );
     final controller = ref.read(petControllerProvider.notifier);
