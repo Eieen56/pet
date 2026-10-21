@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:petreminder_user/core/time/local_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -27,7 +28,12 @@ class NotificationService {
     }
     tz_data.initializeTimeZones();
     final timezone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timezone.identifier));
+    tz.setLocalLocation(
+      resolveLocalTimezone(
+        timezone.identifier,
+        fallbackOffset: DateTime.now().timeZoneOffset,
+      ),
+    );
 
     const settings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
