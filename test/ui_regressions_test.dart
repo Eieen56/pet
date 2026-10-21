@@ -51,7 +51,9 @@ void main() {
           authStateChangesProvider.overrideWith((ref) => changes.stream),
           adminAccessProvider.overrideWith((ref) async {
             final uid = ref.watch(currentUserIdProvider);
-            if (uid != null) permissionChecks++;
+          if (uid != null) {
+            permissionChecks++;
+          }
             return false;
           }),
           petsProvider.overrideWith((ref) => Stream.value([])),
