@@ -13,10 +13,10 @@ atribuyen fechas anteriores ni se acredita retroalimentación no recibida.
 | Código recibido y configuración de versionado beta | 20/10/2026 | 20/10/2026 18:58:57 UTC-06:00, push verificado | Entregado a tiempo en Eieen56/pet |
 | Guía, formulario y política de cierre beta | 20/10/2026 | 20/10/2026 18:58:57 UTC-06:00, archivos publicados | Entregados a tiempo; validación de política local aprobada |
 | Publicación del código en GitHub | 20/10/2026 | 20/10/2026 18:58:57 UTC-06:00, commit 1a7301a verificado en main | Entregado a tiempo |
-| Correcciones de perfil, mascotas y módulo admin | 20/10/2026 | 20/10/2026, código y pruebas locales | Entregadas a tiempo en GitHub; 25 pruebas de app y 2 de admin aprobadas |
+| Correcciones de perfil, mascotas y módulo admin | 20/10/2026 | 20/10/2026, código y pruebas locales | Entregadas a tiempo en GitHub; 32 pruebas de app y 2 de admin aprobadas |
 | Reglas de Firestore corregidas | 20/10/2026 | 20/10/2026, emulador y despliegue real | Desplegadas correctamente |
-| Compilación Android | 20/10/2026 | En proceso | Pendiente de resultado verificable |
-| Instalador / Release / SHA-256 | Distribución separada en Eieen56/app_pet | Sin publicación verificada | Pendientes |
+| Compilación Android | 20/10/2026 | 20/10/2026, build release e instalación del APK verificadas | Entregada a tiempo |
+| Instalador / Release / SHA-256 | 20/10/2026, distribución en Eieen56/app_pet | 20/10/2026 20:20:11 UTC-06:00, Release pública verificada | Entregados a tiempo |
 | Reporte Tester 1 | 20/10/2026 23:59:00 | No recibido | Pendiente; cuenta por confirmar |
 | Reporte Tester 2 | 20/10/2026 23:59:00 | No recibido | Pendiente; cuenta por confirmar |
 | Reporte Tester 3 | 20/10/2026 23:59:00 | No recibido | Pendiente; cuenta por confirmar |
@@ -32,12 +32,12 @@ código preparado no acredita que los testers hayan probado la aplicación.
 - El remoto público consultado no tenía refs; no se reemplazó historial previo.
 - Aplicación Android Flutter con Riverpod, GoRouter, Firebase Auth/Firestore,
   fotografías privadas locales y recordatorios diarios.
-- Existen dos archivos de pruebas Flutter: validadores/modelos/notificaciones
-  y una prueba de widget de inicio de sesión.
+- Las pruebas Flutter cubren validadores, modelos, sesiones, widgets de acceso
+  y perfil, y resolución de zonas horarias.
 - En la auditoría inicial faltaba `../petreminder_admin`. Posteriormente se
   incorporó `petreminder_admin/` dentro de este repositorio y se corrigió la
   ruta en `pubspec.yaml`; la resolución de dependencias ya funciona.
-- `flutter test --concurrency=1`: 25 pruebas aprobadas en la app. Las dos
+- `flutter test --concurrency=1`: 32 pruebas aprobadas en la app. Las dos
   pruebas del módulo admin también aprobaron. Cubren sesiones, carga del
   nombre, rutas administrativas, borrados, huérfanos, catálogos y validación.
 - Emulador Firestore con proyecto demo: reglas aprobadas, incluyendo límites
@@ -51,26 +51,37 @@ código preparado no acredita que los testers hayan probado la aplicación.
 - No había `.github` ni documentación de Releases en la carpeta original.
 - Se conserva la arquitectura, reglas Firebase y fuentes; se excluyen carpetas
   generadas, configuración local, credenciales y binarios. No se añade licencia.
-- Las dependencias conservan sus versiones y lockfile. No se ha realizado una
-  auditoría de vulnerabilidades de toda la cadena de dependencias.
+- Se conserva el lockfile y se declara la fuente de iconos requerida por la app.
+  No se ha realizado una auditoría de vulnerabilidades de todas las dependencias.
 
-## Activación pendiente
+## Validación y pendientes
 
-1. Verificar que la CI remota finalice correctamente; el push a `Eieen56/pet` ya está confirmado.
-2. Completar y verificar el build Android antes de distribuir su APK.
-3. Confirmar las cuentas de tres testers. Los reportes #1, #2 y #3 y sus
-   etiquetas ya están creados; los resultados de las pruebas siguen pendientes.
-4. Verificar Actions habilitado, permiso `issues: write` para el workflow y
-   los resultados del horario. La simulación manual del cierre ya terminó
-   correctamente en GitHub sin bloquear los reportes. No hacen falta tokens personales.
-5. Entregar el APK por el proceso separado y completar su verificación,
-   versión, requisitos y hash antes de solicitar pruebas reales.
+- CI remota del código de ejecución `f6d98fb`: aprobada (32 app, 2 admin, 8 política beta).
+- Build release, manifiesto, firma y SHA-256 verificados; Android mínimo API 24.
+- Instalación del mismo APK y pantalla «Bienvenido» verificadas en emulador
+  Android 16, zona GMT, sin excepciones fatales de la app. El emulador mostró
+  avisos de lentitud del sistema y Google Play services por recursos del equipo;
+  esta comprobación no certifica todos los flujos en teléfonos reales.
+- Actions habilitado y simulación manual aprobada sin bloquear reportes.
+- Pendiente: confirmar las cuentas de tres testers y recibir sus reportes reales.
+- Pendiente: verificar el bloqueo programado después del corte; no se acredita
+  una ejecución futura ni se marcan los reportes como recibidos.
 
 Reportes preparados: https://github.com/Eieen56/pet/issues/1,
 https://github.com/Eieen56/pet/issues/2 y https://github.com/Eieen56/pet/issues/3.
 No hay testers asignados ni reportes acreditados como completados.
 
-CI remota del código `1a7301a`: aprobada en
-https://github.com/Eieen56/pet/actions/runs/39524430623.
+CI remota del código `f6d98fb`: aprobada en
+https://github.com/Eieen56/pet/actions/runs/39530072343.
 Simulación manual de cierre: aprobada en
 https://github.com/Eieen56/pet/actions/runs/39524641369; workflow habilitado.
+
+## Instalador entregado
+
+[Release pública](https://github.com/Eieen56/app_pet/releases/tag/v1.0.0-beta.1) · [APK](https://github.com/Eieen56/app_pet/releases/download/v1.0.0-beta.1/PetReminder-1.0.0-beta.1.apk).
+Publicado: **20/10/2026 20:20:11 UTC-06:00**. Código de ejecución: `f6d98fb73cf0c0bb91524465dd9c28e3d77732de`.
+Los commits posteriores de esta entrega actualizan documentación y evidencias.
+
+SHA-256: `bbd691d9c7e8ddf7437a4382e6d413ee362e7cba0720c0b02cececdb30890828`. Tamaño: 59,484,631 bytes.
+Firma de depuración beta, diferente del APK recibido originalmente; consultar
+la guía antes de desinstalar para conservar fotografías locales.

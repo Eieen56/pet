@@ -7,18 +7,29 @@ capturas con información personal ni credenciales administrativas.
 
 ## Versión y distribución
 
-Código candidato: `1.0.0-beta.1+2`. Los tres testers deben recibir exactamente
-el mismo APK y SHA-256. La publicación del instalador se gestiona por separado:
-en esta entrega NO hay APK publicado ni Release verificada.
+Versión publicada: `1.0.0-beta.1+2`. Los tres testers deben usar el mismo APK.
 
-Página prevista para el APK: https://github.com/Eieen56/app_pet/releases.
-Código fuente: https://github.com/Eieen56/pet.
-No descargar archivos de terceros ni asumir que el código fuente es instalable.
-El responsable debe completar el enlace directo, SHA-256 y requisitos Android
-tras compilar y probar la app en un dispositivo. El mínimo efectivo de Android
-depende del SDK de Flutter y de los plugins; aún no está certificado.
+- [Descargar APK](https://github.com/Eieen56/app_pet/releases/download/v1.0.0-beta.1/PetReminder-1.0.0-beta.1.apk).
+- [Release y SHA256SUMS.txt](https://github.com/Eieen56/app_pet/releases/tag/v1.0.0-beta.1).
+- Código fuente: https://github.com/Eieen56/pet.
+- Publicado: **20/10/2026 20:20:11 UTC-06:00**, dentro de la fecha prevista.
+- Android 7.0 (API 24) o superior. ARM de 32/64 bits y x86_64.
+- Tamaño: 59,484,631 bytes. SHA-256:
 
-Cuando se distribuya: descargar el APK identificado, verificar su hash,
+```
+bbd691d9c7e8ddf7437a4382e6d413ee362e7cba0720c0b02cececdb30890828
+```
+
+En PowerShell: `Get-FileHash .\PetReminder-1.0.0-beta.1.apk -Algorithm SHA256`.
+Comparar con el hash anterior antes de instalar.
+
+Compilación release, firma e instalación verificadas. La pantalla «Bienvenido»
+se comprobó en emulador Android 16 con zona GMT, sin excepciones fatales de la
+app; el archivo instalado conserva este hash. El emulador mostró avisos de
+lentitud del sistema Android y Google Play services por recursos del equipo.
+Esto no acredita los flujos completos de los tres testers en teléfonos reales.
+
+Para instalar: descargar el APK identificado, verificar su hash,
 instalar siguiendo las indicaciones de Android y conceder solo los permisos
 necesarios para notificaciones, alarmas y fotografías. Un APK sin firma de
 distribución puede mostrar advertencias. No desactivar antivirus ni protecciones.
@@ -59,7 +70,8 @@ prueba beta» y mantiene allí sus resultados y comentarios.
 Títulos exactos: `[beta-2026-10] Tester 1`, `[beta-2026-10] Tester 2` y
 `[beta-2026-10] Tester 3`. El responsable crea las etiquetas `tester-feedback`
 y `beta-2026-10`, las aplica a los tres reportes y registra sus números en
-`.github/beta-round.json` (por ejemplo `[12, 13, 14]`, usando los números reales).
+`.github/beta-round.json`. Ya están preparados los issues #1, #2 y #3 con
+los títulos y etiquetas de esta ronda.
 Comprobar que no son pull requests ni reportes ajenos antes de enviar ese cambio.
 
 La plantilla incluye versión/hash, dispositivo, funcionalidad, pasos, resultado

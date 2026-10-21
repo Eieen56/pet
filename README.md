@@ -4,10 +4,10 @@ Aplicación Flutter para Android orientada a organizar la alimentación de masco
 
 ## Estado de esta entrega
 
-Versión candidata: **1.0.0-beta.1+2**, en desarrollo. Esta entrega contiene
-código fuente y soporte de pruebas beta; el instalador se entrega por separado.
-No hay una versión estable certificada. El APK beta se distribuye por separado
-en https://github.com/Eieen56/app_pet/releases cuando su publicación esté verificada.
+Versión beta: **1.0.0-beta.1+2**, publicada el 20/10/2026.
+[Descargar APK](https://github.com/Eieen56/app_pet/releases/download/v1.0.0-beta.1/PetReminder-1.0.0-beta.1.apk) · [Release y SHA-256](https://github.com/Eieen56/app_pet/releases/tag/v1.0.0-beta.1).
+Este repositorio contiene el código; el instalador se distribuye en `Eieen56/app_pet`.
+Las pruebas de los tres testers siguen pendientes; no es una versión estable certificada.
 
 Repositorio: https://github.com/Eieen56/pet.
 Consultar [pruebas beta](docs/PRUEBAS_BETA.md), [entregas](docs/ENTREGAS.md)
@@ -15,7 +15,8 @@ y [cambios](CHANGELOG.md).
 
 ### Requisitos
 
-- Flutter 3.44.6 / Dart 3.12.2 utilizados para intentar la validación local.
+- Flutter 3.44.6 / Dart 3.12.2 utilizados para compilar y validar esta beta.
+- Android 7.0 (API 24) o superior; APK universal para ARM y x86_64.
 - Android SDK y JDK 17; el proyecto utiliza Gradle 9.1 y Android Gradle Plugin 9.0.1.
 - El módulo `petreminder_admin/` está incluido como dependencia local dentro
   de este repositorio. Sus pantallas también se abren dentro de la app Android.
@@ -63,7 +64,7 @@ excluyen registros huérfanos de versiones anteriores.
 
 `main` es la rama de integración. Antes de integrar cambios, ejecutar las
 comprobaciones correspondientes y revisar el diff. Esta primera línea base
-no está certificada como estable por faltar la dependencia administrativa.
+permanece en beta mientras se completa la evaluación de los tres testers.
 Utilizar ramas temporales `feat/...`, `fix/...`, `docs/...`, `test/...` o
 `chore/...`, con Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`,
 `chore:`) y actualizar el changelog.
@@ -88,7 +89,7 @@ y eliminarla cuando esté integrada. Aplicar SemVer; los siguientes candidatos
 serían `1.0.0-beta.2+3`, etc. Crear tags preliminares solo sobre commits
 comprobados y enviados. No crear `v1.0.0` estable hasta validar la aplicación.
 Las Releases preliminares con APK y SHA-256 corresponden a la distribución
-separada y están pendientes. No reemplazar artefactos ya distribuidos.
+separada en `Eieen56/app_pet`. No reemplazar artefactos ya distribuidos.
 
 ## Comandos básicos
 
@@ -135,13 +136,17 @@ se conserva por compatibilidad, pero no acredita que esa cuenta siga vigente.
 La aplicación solicita permiso para notificaciones y alarmas exactas. Cada
 horario activo genera dos recordatorios locales diarios: cinco minutos antes y
 a la hora indicada. Android puede volver a pedir el permiso de alarmas exactas
-después de reinstalar la aplicación.
+después de reinstalar la aplicación. Se normalizan las zonas GMT/UTC y sus
+desfases para evitar errores durante el arranque.
 
 ## Compilación
 
 ```powershell
-flutter build apk --debug
+flutter build apk --release
 ```
 
 El APK resultante se genera en
-`build/app/outputs/flutter-apk/app-debug.apk`.
+`build/app/outputs/flutter-apk/app-release.apk`.
+
+Esta beta utiliza la firma de depuración configurada en el proyecto. Consultar
+la guía beta antes de actualizar una instalación con una firma diferente.

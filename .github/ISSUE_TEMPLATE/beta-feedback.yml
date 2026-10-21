@@ -16,7 +16,7 @@ body:
     id: version
     attributes:
       label: Versión probada y SHA-256 del artefacto
-      placeholder: '1.0.0-beta.1+2 — hash pendiente de distribución'
+      placeholder: '1.0.0-beta.1+2 — copiar SHA-256 de la Release oficial'
     validations:
       required: true
   - type: input
