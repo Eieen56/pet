@@ -18,22 +18,22 @@ final petPhotoServiceProvider = Provider<PetPhotoService>(
 );
 
 final petsProvider = StreamProvider.autoDispose<List<Pet>>((ref) {
-  final user = ref.watch(authStateChangesProvider).value;
-  if (user == null) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
     return Stream.value(const []);
   }
-  return ref.watch(petRepositoryProvider).watchPets(user.uid);
+  return ref.watch(petRepositoryProvider).watchPets(userId);
 });
 
 final petPhotoPathProvider = FutureProvider.autoDispose.family<String?, String>(
   (ref, petId) {
-    final user = ref.watch(authStateChangesProvider).value;
-    if (user == null) {
+    final userId = ref.watch(currentUserIdProvider);
+    if (userId == null) {
       return Future.value(null);
     }
     return ref
         .watch(petPhotoServiceProvider)
-        .findPhoto(userId: user.uid, petId: petId);
+        .findPhoto(userId: userId, petId: petId);
   },
 );
 

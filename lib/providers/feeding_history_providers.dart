@@ -16,11 +16,11 @@ final feedingHistoryRepositoryProvider = Provider<FeedingHistoryRepository>(
 
 final rawFeedingHistoryProvider =
     StreamProvider.autoDispose<List<FeedingRecord>>((ref) {
-      final user = ref.watch(authStateChangesProvider).value;
-      if (user == null) {
+      final userId = ref.watch(currentUserIdProvider);
+      if (userId == null) {
         return Stream.value(const []);
       }
-      return ref.watch(feedingHistoryRepositoryProvider).watchHistory(user.uid);
+      return ref.watch(feedingHistoryRepositoryProvider).watchHistory(userId);
     });
 
 // También excluye registros huérfanos generados por versiones anteriores.
@@ -66,25 +66,25 @@ final ensureTodayForPetProvider = FutureProvider.autoDispose.family<void, Pet>((
   ref,
   pet,
 ) async {
-  final user = ref.watch(authStateChangesProvider).value;
-  if (user == null) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
     return;
   }
   await ref
       .watch(feedingHistoryRepositoryProvider)
-      .ensureTodayForPet(user.uid, pet);
+      .ensureTodayForPet(userId, pet);
 });
 
 final ensureTodayForAllPetsProvider = FutureProvider.autoDispose<void>((
   ref,
 ) async {
-  final user = ref.watch(authStateChangesProvider).value;
-  if (user == null) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
     return;
   }
   await ref
       .watch(feedingHistoryRepositoryProvider)
-      .ensureTodayForAllPets(user.uid);
+      .ensureTodayForAllPets(userId);
 });
 
 final feedingHistoryControllerProvider =

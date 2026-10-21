@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ import 'package:petreminder_user/features/profile/presentation/profile_screen.da
 import 'package:petreminder_user/models/app_user.dart';
 import 'package:petreminder_user/providers/auth_providers.dart';
 import 'package:petreminder_user/providers/feeding_history_providers.dart';
+import 'package:petreminder_user/providers/firebase_providers.dart';
 import 'package:petreminder_user/providers/notification_providers.dart';
 import 'package:petreminder_user/providers/pet_providers.dart';
 import 'package:petreminder_user/providers/profile_providers.dart';
@@ -32,6 +34,60 @@ class FakeUser extends Fake implements User {
 }
 
 void main() {
+  testWidgets(
+    'editar el nombre no reinicia la sesión ni saca al usuario del perfil',
+    (tester) async {
+      final changes = StreamController<User?>();
+      final db = FakeFirebaseFirestore();
+      await db.doc('users/u').set({
+        'uid': 'u',
+        'name': 'María Pérez',
+        'email': 'maria@example.com',
+      });
+      var permissionChecks = 0;
+      final container = ProviderContainer(
+        overrides: [
+          firestoreProvider.overrideWithValue(db),
+          authStateChangesProvider.overrideWith((ref) => changes.stream),
+          adminAccessProvider.overrideWith((ref) async {
+            final uid = ref.watch(currentUserIdProvider);
+            if (uid != null) permissionChecks++;
+            return false;
+          }),
+          petsProvider.overrideWith((ref) => Stream.value([])),
+          profilePhotoPathProvider.overrideWith((ref) async => null),
+          notificationSyncProvider.overrideWith((ref) async {}),
+          ensureTodayForAllPetsProvider.overrideWith((ref) async {}),
+        ],
+      );
+      addTearDown(() async {
+        container.dispose();
+        await changes.close();
+      });
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const PetReminderApp(),
+        ),
+      );
+      changes.add(FakeUser());
+      await tester.pumpAndSettle();
+      final router = container.read(routerProvider);
+      router.go('/profile');
+      await tester.pumpAndSettle();
+      final before = permissionChecks;
+      await db.doc('users/u').update({'name': 'María Actualizada'});
+      changes.add(
+        FakeUser(),
+      ); // userChanges también se emite al editar displayName.
+      await tester.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, '/profile');
+      expect(find.text('María Actualizada'), findsOneWidget);
+      expect(permissionChecks, before);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
   testWidgets(
     'solo hay una entrada para agregar mascota y abre el formulario',
     (tester) async {

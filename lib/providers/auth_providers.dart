@@ -27,8 +27,16 @@ final authStateChangesProvider = StreamProvider<User?>((ref) {
   return ref.watch(firebaseAuthProvider).userChanges();
 });
 
+// Los datos y permisos se suscriben a la identidad, no a cada edición del perfil.
+final currentUserIdProvider = Provider<String?>((ref) {
+  return ref.watch(
+    authStateChangesProvider.select((state) => state.value?.uid),
+  );
+});
+
 final adminAccessProvider = FutureProvider<bool>((ref) async {
-  final user = ref.watch(authStateChangesProvider).value;
+  ref.watch(currentUserIdProvider);
+  final user = ref.read(authStateChangesProvider).value;
   if (user == null) return false;
   final token = await user.getIdTokenResult();
   return token.claims?['admin'] == true;

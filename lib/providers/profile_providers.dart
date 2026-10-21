@@ -12,19 +12,19 @@ final profilePhotoServiceProvider = Provider<ProfilePhotoService>(
 );
 
 final appUserProvider = StreamProvider.autoDispose<AppUser?>((ref) {
-  final user = ref.watch(authStateChangesProvider).value;
-  if (user == null) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
     return Stream.value(null);
   }
-  return ref.watch(userRepositoryProvider).watchUser(user.uid);
+  return ref.watch(userRepositoryProvider).watchUser(userId);
 });
 
 final profilePhotoPathProvider = FutureProvider.autoDispose<String?>((ref) {
-  final user = ref.watch(authStateChangesProvider).value;
-  if (user == null) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
     return Future.value(null);
   }
-  return ref.watch(profilePhotoServiceProvider).findPhoto(user.uid);
+  return ref.watch(profilePhotoServiceProvider).findPhoto(userId);
 });
 
 final profileControllerProvider =

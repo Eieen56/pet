@@ -8,14 +8,11 @@ final notificationServiceProvider = Provider<NotificationService>(
 );
 
 final notificationSyncProvider = FutureProvider.autoDispose<void>((ref) async {
-  final user = ref.watch(authStateChangesProvider).value;
-  if (user == null) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
     return;
   }
   await ref
       .watch(notificationServiceProvider)
-      .syncAllForUser(
-        firestore: ref.watch(firestoreProvider),
-        userId: user.uid,
-      );
+      .syncAllForUser(firestore: ref.watch(firestoreProvider), userId: userId);
 });

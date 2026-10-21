@@ -15,13 +15,13 @@ final feedingScheduleRepositoryProvider = Provider<FeedingScheduleRepository>(
 
 final feedingSchedulesProvider = StreamProvider.autoDispose
     .family<List<FeedingSchedule>, String>((ref, petId) {
-      final user = ref.watch(authStateChangesProvider).value;
-      if (user == null) {
+      final userId = ref.watch(currentUserIdProvider);
+      if (userId == null) {
         return Stream.value(const []);
       }
       return ref
           .watch(feedingScheduleRepositoryProvider)
-          .watchSchedules(user.uid, petId);
+          .watchSchedules(userId, petId);
     });
 
 final feedingScheduleControllerProvider =
