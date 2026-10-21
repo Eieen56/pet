@@ -10,17 +10,17 @@ atribuyen fechas anteriores ni se acredita retroalimentación no recibida.
 
 | Elemento | Fecha prevista | Fecha real verificable | Estado |
 | --- | --- | --- | --- |
-| Código recibido y configuración de versionado beta | 20/10/2026 | 20/10/2026, preparación local | Preparado; envío pendiente de autenticar GitHub |
-| Guía, formulario y política de cierre beta | 20/10/2026 | 20/10/2026, preparación local | Preparados y política validada localmente |
-| Publicación del código en GitHub | 20/10/2026 | Pendiente de push verificado | Pendiente |
-| Correcciones de perfil, mascotas y módulo admin | 20/10/2026 | 20/10/2026, código y pruebas locales | Completadas localmente; 25 pruebas de app y 2 de admin aprobadas |
+| Código recibido y configuración de versionado beta | 20/10/2026 | 20/10/2026 18:58:57 UTC-06:00, push verificado | Entregado a tiempo en Eieen56/pet |
+| Guía, formulario y política de cierre beta | 20/10/2026 | 20/10/2026 18:58:57 UTC-06:00, archivos publicados | Entregados a tiempo; validación de política local aprobada |
+| Publicación del código en GitHub | 20/10/2026 | 20/10/2026 18:58:57 UTC-06:00, commit 1a7301a verificado en main | Entregado a tiempo |
+| Correcciones de perfil, mascotas y módulo admin | 20/10/2026 | 20/10/2026, código y pruebas locales | Entregadas a tiempo en GitHub; 25 pruebas de app y 2 de admin aprobadas |
 | Reglas de Firestore corregidas | 20/10/2026 | 20/10/2026, emulador y despliegue real | Desplegadas correctamente |
 | Compilación Android | 20/10/2026 | En proceso | Pendiente de resultado verificable |
 | Instalador / Release / SHA-256 | Distribución separada en Eieen56/app_pet | Sin publicación verificada | Pendientes |
 | Reporte Tester 1 | 20/10/2026 23:59:00 | No recibido | Pendiente; cuenta por confirmar |
 | Reporte Tester 2 | 20/10/2026 23:59:00 | No recibido | Pendiente; cuenta por confirmar |
 | Reporte Tester 3 | 20/10/2026 23:59:00 | No recibido | Pendiente; cuenta por confirmar |
-| Bloqueo de los tres reportes | Desde 21/10/2026 00:00:00 | Sin ejecución real verificada | Preparado; faltan números de issues |
+| Bloqueo de los tres reportes | Desde 21/10/2026 00:00:00 | Sin ejecución real verificada | Configurado para los issues #1, #2 y #3; ejecución real después del corte pendiente |
 
 Solo marcar «Entregado a tiempo» con un commit publicado verificable antes
 de la fecha comprometida. Para feedback, usar el reporte real y su fecha; el
@@ -56,11 +56,15 @@ código preparado no acredita que los testers hayan probado la aplicación.
 
 ## Activación pendiente
 
-1. Autenticar GitHub con permisos de push sobre `Eieen56/pet` y verificar el envío.
+1. Verificar que la CI remota finalice correctamente; el push a `Eieen56/pet` ya está confirmado.
 2. Completar y verificar el build Android antes de distribuir su APK.
-3. Confirmar las cuentas de tres testers, crear sus reportes y etiquetas,
-   registrar sus números reales en `.github/beta-round.json` y enviarlo a `main`.
+3. Confirmar las cuentas de tres testers. Los reportes #1, #2 y #3 y sus
+   etiquetas ya están creados; los resultados de las pruebas siguen pendientes.
 4. Verificar Actions habilitado, permiso `issues: write` para el workflow y
    ejecutar simulación manual. No hacen falta tokens personales.
 5. Entregar el APK por el proceso separado y completar su verificación,
    versión, requisitos y hash antes de solicitar pruebas reales.
+
+Reportes preparados: https://github.com/Eieen56/pet/issues/1,
+https://github.com/Eieen56/pet/issues/2 y https://github.com/Eieen56/pet/issues/3.
+No hay testers asignados ni reportes acreditados como completados.

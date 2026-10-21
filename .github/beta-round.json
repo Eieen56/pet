@@ -4,5 +4,9 @@
   "timezone": "America/Mexico_City",
   "feedbackDeadline": "2026-10-20T23:59:00-06:00",
   "lockAt": "2026-10-21T00:00:00-06:00",
-  "issueNumbers": []
+  "issueNumbers": [
+    1,
+    2,
+    3
+  ]
 }
