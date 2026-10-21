@@ -24,6 +24,10 @@ necesarios para notificaciones, alarmas y fotografías. Un APK sin firma de
 distribución puede mostrar advertencias. No desactivar antivirus ni protecciones.
 La configuración actual de release usa firma de depuración; no es una firma
 de producción. No sustituir un APK ya distribuido: corregir en una nueva beta.
+La firma local actual es diferente de la del APK que venía en la carpeta
+original. Android no permite actualizar una instalación firmada con otra
+clave. Antes de gestionar ese caso con el responsable, conservar las fotos
+locales; desinstalar elimina los archivos privados de la app.
 
 ## Lista de comprobación
 

@@ -64,6 +64,7 @@ firebase.json
 .codex/
 AGENTS.md
 node_modules/
+.kotlin/
 .firebase/
 **/firebase_options.dart
 **/google-services.json

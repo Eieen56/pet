@@ -61,10 +61,16 @@ código preparado no acredita que los testers hayan probado la aplicación.
 3. Confirmar las cuentas de tres testers. Los reportes #1, #2 y #3 y sus
    etiquetas ya están creados; los resultados de las pruebas siguen pendientes.
 4. Verificar Actions habilitado, permiso `issues: write` para el workflow y
-   ejecutar simulación manual. No hacen falta tokens personales.
+   los resultados del horario. La simulación manual del cierre ya terminó
+   correctamente en GitHub sin bloquear los reportes. No hacen falta tokens personales.
 5. Entregar el APK por el proceso separado y completar su verificación,
    versión, requisitos y hash antes de solicitar pruebas reales.
 
 Reportes preparados: https://github.com/Eieen56/pet/issues/1,
 https://github.com/Eieen56/pet/issues/2 y https://github.com/Eieen56/pet/issues/3.
 No hay testers asignados ni reportes acreditados como completados.
+
+CI remota del código `1a7301a`: aprobada en
+https://github.com/Eieen56/pet/actions/runs/39524430623.
+Simulación manual de cierre: aprobada en
+https://github.com/Eieen56/pet/actions/runs/39524641369; workflow habilitado.
